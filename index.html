@@ -3,421 +3,676 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>XDZ Combat (Mini App)</title>
+    <title>XDZ Kombat Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --dark-bg: #1A1A1A;
-            --main-text: #FFFFFF;
-            --secondary-text: #A0A0A0;
-            --accent-gold: #FFD700;
-            --accent-red: #FF0040;
-            --header-bg: #111111;
-            --tap-area-circle: rgba(255, 0, 64, 0.2); /* Красное свечение вокруг хомяка */
-        }
-
+        /* БАЗОВЫЕ СТИЛИ ДЛЯ ИМИТАЦИИ ДИЗАЙНА */
         body {
-            font-family: 'Arial', sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: var(--dark-bg);
-            color: var(--main-text);
-            overflow: hidden; /* Важно для мобильных приложений */
             display: flex;
             flex-direction: column;
+            align-items: center;
             height: 100vh;
+            overflow: hidden; /* Важно для мобильных приложений */
         }
-
-        /* -----------------------------------
-           HEADER (Верхние награды)
-           ----------------------------------- */
-        .header-rewards {
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 10px 20px;
-            background-color: var(--dark-bg);
-        }
-
-        .reward-item {
+        .container {
+            width: 100%;
+            max-width: 500px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            background-color: var(--header-bg);
-            border-radius: 10px;
-            padding: 10px;
-            width: 30%;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            opacity: 0.6;
-            transition: opacity 0.2s;
-        }
-
-        .reward-item.active {
-            opacity: 1;
-            border-color: var(--accent-gold);
-        }
-
-        .reward-icon {
-            width: 40px;
-            height: 40px;
-            background-color: #333;
-            border-radius: 5px;
-            margin-bottom: 5px;
-            /* Заглушки для иконок */
-            background-size: cover;
-        }
-        .reward-item:nth-child(1) .reward-icon { background-image: url('https://placehold.co/40x40/4CAF50/white?text=D'); }
-        .reward-item:nth-child(2) .reward-icon { background-image: url('https://placehold.co/40x40/FF5722/white?text=C'); }
-        .reward-item:nth-child(3) .reward-icon { background-image: url('https://placehold.co/40x40/2196F3/white?text=K'); }
-
-
-        .reward-item .title {
-            font-size: 11px;
-            font-weight: bold;
-            color: var(--secondary-text);
-        }
-
-        .reward-item .timer {
-            font-size: 10px;
-            color: var(--secondary-text);
-        }
-        
-        .reward-item.active .reward-icon::after {
-            content: '✓';
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 50%;
-            width: 15px;
-            height: 15px;
-            line-height: 15px;
-            font-size: 10px;
-        }
-        
-        /* -----------------------------------
-           MAIN CONTENT
-           ----------------------------------- */
-        .main-content {
             flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0 20px;
-            overflow-y: auto;
-            position: relative;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
-        .balance-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .balance-value {
-            font-size: 32px;
-            font-weight: 900;
-            margin-top: 10px;
-            letter-spacing: -1px;
-            text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
-        }
-
-        .balance-label {
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-            color: var(--secondary-text);
-            margin-bottom: 15px;
-        }
-        
-        .balance-label .coin-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 5px;
-            /* Заглушка для монеты */
-            background-image: url('https://placehold.co/20x20/FFD700/000000?text=$');
-            background-size: cover;
-            border-radius: 50%;
-        }
-
-        /* Daily Cipher block */
-        .daily-cipher-block {
+        /* ХЕДЕР */
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            margin-bottom: 25px;
+            padding: 10px 0;
+            border-bottom: 1px solid #333;
         }
-
-        .cipher-label {
-            font-size: 14px;
+        .balance {
+            font-size: 2.2em;
             font-weight: bold;
+            color: #ffcc00; /* Желтый цвет монет */
         }
-
-        .cipher-reward-button {
-            background-color: #32CD32; /* Lime green */
-            color: white;
-            border: none;
-            padding: 8px 15px;
+        .settings-btn {
+            background: none;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 5px 10px;
             border-radius: 8px;
-            font-size: 12px;
-            font-weight: bold;
             cursor: pointer;
         }
 
-        /* -----------------------------------
-           HAMSTER TAP AREA
-           ----------------------------------- */
-        .tap-area {
-            position: relative;
-            width: 300px;
-            height: 300px;
+        /* ЦЕНТР / КЛИКЕР */
+        .clicker-area {
+            flex-grow: 1;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            /* Имитация красного круга */
-            background: radial-gradient(circle, var(--tap-area-circle) 0%, rgba(255, 0, 64, 0) 70%);
-            border-radius: 50%;
-            box-shadow: 0 0 40px var(--accent-red);
+            position: relative;
+            overflow: hidden;
+            user-select: none;
             cursor: pointer;
         }
-
-        .hamster-circle {
+        .character {
             width: 250px;
             height: 250px;
-            border-radius: 50%;
-            background-color: #333333;
-            overflow: hidden;
-            border: 5px solid var(--dark-bg); /* Имитация рамки */
-            position: relative;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        
-        .hamster-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            /* Заглушка для хомяка */
-            background-image: url('https://placehold.co/250x250/5D5D5D/white?text=HAMSTER');
             background-size: cover;
+            background-position: center;
             border-radius: 50%;
+            transition: transform 0.1s;
         }
-        
-        /* -----------------------------------
-           BOTTOM NAVIGATION (Нижнее меню)
-           ----------------------------------- */
-        .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 60px;
-            background-color: var(--header-bg);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: env(safe-area-inset-bottom); /* Учет безопасной области на iOS */
+        .character.active {
+            box-shadow: 0 0 30px rgba(255, 204, 0, 0.5);
+        }
+        .character:active {
+            transform: scale(0.95);
+        }
+        .plus-points {
+            position: absolute;
+            font-size: 2em;
+            color: #ffcc00;
+            font-weight: bold;
+            opacity: 0;
+            pointer-events: none;
+            animation: floatup 1s forwards;
+            white-space: nowrap;
+        }
+        @keyframes floatup {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
         }
 
-        .nav-item {
+        /* ФУТЕР / МЕНЮ */
+        .footer-menu {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+            background-color: #1a1a1a;
+        }
+        .menu-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-size: 10px;
-            color: var(--secondary-text);
-            padding: 5px;
+            font-size: 0.8em;
             cursor: pointer;
-            transition: color 0.2s;
+            color: #777;
+        }
+        .menu-item.active {
+            color: #ffcc00;
         }
 
-        .nav-item.active {
-            color: var(--main-text);
-            font-weight: bold;
-        }
-
-        .nav-icon {
-            width: 24px;
-            height: 24px;
-            margin-bottom: 2px;
-            /* Заглушки для иконок */
-            background-color: #555;
-            border-radius: 50%;
-            background-size: 60%;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        .nav-item.active .nav-icon {
-            background-color: var(--accent-gold);
-        }
-
-        /* Имитация иконок */
-        .nav-item:nth-child(1) .nav-icon { background-image: url('https://placehold.co/24x24/555/white?text=E'); }
-        .nav-item:nth-child(2) .nav-icon { background-image: url('https://placehold.co/24x24/555/white?text=M'); }
-        .nav-item:nth-child(3) .nav-icon { background-image: url('https://placehold.co/24x24/555/white?text=F'); }
-        .nav-item:nth-child(4) .nav-icon { background-image: url('https://placehold.co/24x24/555/white?text=R'); }
-        .nav-item:nth-child(5) .nav-icon { background-image: url('https://placehold.co/24x24/555/white?text=A'); }
-        
-        .nav-item.active:nth-child(1) .nav-icon { background-color: var(--accent-gold); }
-
-        /* Эффект для клика (анимация) */
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(1.5); opacity: 0; }
-        }
-
-        .click-animation {
-            position: absolute;
-            font-size: 30px;
-            font-weight: bold;
-            color: var(--accent-gold);
-            pointer-events: none;
-            animation: pulse 0.5s ease-out forwards;
-        }
-
-        /* -----------------------------------
-           JS INIT & TAP
-           ----------------------------------- */
-        .init-loading {
-            display: flex;
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none; /* Скрыто по умолчанию */
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            font-size: 20px;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .modal button {
+            background: #ffcc00;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        .modal input {
+            width: 90%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 6px;
         }
 
+        /* ONBOARDING / СТАРТОВЫЙ ЭКРАН */
+        #onboarding {
+            flex-direction: column;
+            justify-content: space-around;
+            text-align: center;
+            padding: 20px;
+            height: 100%;
+        }
+        #onboarding h2 { color: #ffcc00; }
+        .news-block {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        /* УЛУЧШЕНИЯ */
+        .upgrade-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .upgrade-item {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .upgrade-item button {
+            background: #00bfff;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .upgrade-item button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        /* КАРТОЧКА / АНИМАЦИЯ */
+        #cardDropAnimation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 200px;
+            background: #ffcc00;
+            border-radius: 10px;
+            border: 5px solid #fff;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            color: #1a1a1a;
+            font-weight: bold;
+            animation: cardFlip 0.8s;
+            z-index: 50;
+        }
+        @keyframes cardFlip {
+            0% { transform: translate(-50%, -50%) rotateY(0deg) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) rotateY(180deg) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) rotateY(360deg) scale(1); opacity: 1; }
+        }
+
+        /* СЕКЦИЯ КАРТОЧЕК */
+        #cards-section {
+            padding: 10px;
+            text-align: center;
+        }
+        #cards-counter {
+            font-size: 2em;
+            color: #00bfff;
+            margin: 10px 0;
+        }
+        #claim-button {
+            background: #00ff7f; /* Ярко-зеленый */
+            color: #1a1a1a;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        #claim-button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header-rewards">
-        <div class="reward-item">
-            <div class="reward-icon"></div>
-            <span class="title">Daily reward</span>
-            <span class="timer" id="daily-reward-timer">03:53</span>
-        </div>
-        <div class="reward-item active">
-            <div class="reward-icon"></div>
-            <span class="title">Daily cipher</span>
-            <span class="timer" id="daily-cipher-timer">22:53</span>
-        </div>
-        <div class="reward-item">
-            <div class="reward-icon"></div>
-            <span class="title">Daily combo</span>
-            <span class="timer" id="daily-combo-timer">15:53</span>
+    <div id="onboarding" class="modal">
+        <div class="modal-content">
+            <h2>Добро пожаловать в XDZ Kombat!</h2>
+            <div class="news-block">
+                <strong>📢 Новости:</strong>
+                <p>🚀 Новый режим фарма запущен! Кликай и зарабатывай XDZ. Присоединяйся к нашему каналу, чтобы не пропустить важные анонсы и бонусы.</p>
+                <p>🎁 В разделе 'Промо' появились новые коды!</p>
+            </div>
+            <p>Для начала игры необходимо подписаться на наш Telegram-канал:</p>
+            <a id="telegramChannelLink" href="https://t.me/siwjdiwj" target="_blank">
+                <button style="background: #00bfff; margin-bottom: 20px;">➡️ Перейти на канал</button>
+            </a>
+            <button id="startGameButton">Я подписался, начать игру!</button>
         </div>
     </div>
 
-    <div class="main-content">
-        <div class="balance-section">
-            <div class="balance-label">
-                <div class="coin-icon"></div>
-                <div class="cipher-label">Daily cipher</div> 
+    <div id="mainApp" class="container" style="display: none;">
+        
+        <div class="header">
+            <div class="balance" id="balanceDisplay">0</div>
+            <button class="settings-btn" id="withdrawBtn">💸 Вывод</button>
+        </div>
+
+        <div class="clicker-area" id="clickerArea">
+            <div class="character active" id="characterImage"></div>
+        </div>
+
+        <div class="footer-menu">
+            <div class="menu-item active" id="menuClicker">
+                <span>🖱️</span>
+                <span>Клик</span>
             </div>
-            <div class="balance-value" id="balance-display">592,325,819</div>
+            <div class="menu-item" id="menuUpgrades">
+                <span>⚙️</span>
+                <span>Прокачка</span>
+            </div>
+            <div class="menu-item" id="menuCards">
+                <span>🃏</span>
+                <span>Карточки</span>
+            </div>
         </div>
         
-        <div class="daily-cipher-block">
-            <span class="cipher-label">Daily cipher</span>
-            <button class="cipher-reward-button" onclick="claimCipher()">+1,000,000</button>
-        </div>
-
-        <div class="tap-area" id="tap-area">
-            <div class="hamster-circle">
-                <div class="hamster-image"></div>
+        <div id="contentUpgrades" class="upgrade-list" style="display: none;"></div>
+        <div id="contentCards" style="display: none;">
+            <div id="cards-section">
+                <h3>Ваши карточки</h3>
+                <p>Соберите 100 одинаковых карточек, чтобы получить **2 000 000 000 XDZ**!</p>
+                <div id="cards-counter">0 / 100</div>
+                <button id="claim-button" disabled>Получить 2 млрд XDZ</button>
+                <p style="font-size: 0.8em; color: #777; margin-top: 20px;">* В этой версии всегда выпадает одна и та же карточка для демонстрации.</p>
             </div>
         </div>
     </div>
 
-    <div class="bottom-nav">
-        <div class="nav-item active">
-            <div class="nav-icon"></div>
-            <span>Exchange</span>
-        </div>
-        <div class="nav-item">
-            <div class="nav-icon"></div>
-            <span>Mine</span>
-        </div>
-        <div class="nav-item">
-            <div class="nav-icon"></div>
-            <span>Friends</span>
-        </div>
-        <div class="nav-item">
-            <div class="nav-icon"></div>
-            <span>Earn</span>
-        </div>
-        <div class="nav-item">
-            <div class="nav-icon"></div>
-            <span>Airdrop</span>
+    <div id="withdrawModal" class="modal">
+        <div class="modal-content">
+            <h3>💸 Запрос на вывод</h3>
+            <p>Минимальная сумма для вывода: <strong id="minWithdrawDisplay">1 000 000 000 XDZ</strong>.</p>
+            <p>Текущий баланс: <strong id="currentBalanceWithdraw">0 XDZ</strong></p>
+
+            <p style="font-size: 0.9em; margin-top: 15px;">Введите ваш ID в приложении (7 символов, начинается с 1):</p>
+            <input type="text" id="withdrawIdInput" placeholder="Пример: 1234567" maxlength="7">
+
+            <button id="sendWithdrawRequest">Отправить запрос</button>
+            <button onclick="document.getElementById('withdrawModal').style.display='none'">Отмена</button>
         </div>
     </div>
 
-    <script>
-        const tapArea = document.getElementById('tap-area');
-        const balanceDisplay = document.getElementById('balance-display');
-        let currentBalance = 592325819; // Начальный баланс
+    <div id="cardModal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: #ffcc00;">🎉 Новая карточка!</h3>
+            <div id="cardDropAnimation">
+                <span style="font-size: 1.5em;">🃏</span>
+            </div>
+            <p style="margin-top: 20px;">Вы получили карточку: **Название Карточки**</p>
+            <p>У вас теперь <strong id="cardCountModal">0</strong> / 100.</p>
+            <button onclick="document.getElementById('cardModal').style.display='none'">Отлично!</button>
+        </div>
+    </div>
 
-        // Инициализация Web App
-        Telegram.WebApp.ready();
-        Telegram.WebApp.setBackgroundColor('#1A1A1A');
+<script>
+    // --- 1. ПЕРЕМЕННЫЕ И НАЧАЛЬНЫЕ НАСТРОЙКИ ---
+    
+    // БАЗОВЫЕ КОНСТАНТЫ
+    const MIN_WITHDRAW_AMOUNT = 1000000000;
+    const CARD_BONUS_AMOUNT = 2000000000;
+    const CARD_COLLECTION_GOAL = 100;
+    const CARD_DROP_CHANCE = 0.05; // 5% шанс выпадения карточки при клике
 
-        // 1. Обработка клика (для примера)
-        tapArea.addEventListener('click', (e) => {
-            // Координаты для анимации
-            const rect = tapArea.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+    // URL канала (ВСТАВЛЕНА ВАША ССЫЛКА)
+    const TELEGRAM_CHANNEL_URL = "https://t.me/siwjdiwj"; 
 
-            // Добавляем монеты (увеличиваем баланс для примера)
-            const clickAmount = 1;
-            currentBalance += clickAmount;
-            balanceDisplay.textContent = currentBalance.toLocaleString('en-US');
+    // ССЫЛКИ НА КАРТИНКИ ПЕРСОНАЖЕЙ (ВСТАВЬТЕ СЮДА ВАШИ ССЫЛКИ)
+    const CHAR_IMAGE_LOW = 'url(https://i.imgur.com/e2Nn9P7.png)'; /* Заглушка для 0 до 1 млрд монет */
+    const CHAR_IMAGE_HIGH = 'url(https://i.imgur.com/T0W8p4m.png)'; /* Заглушка для 1 млрд+ монет */
 
-            // Создание и запуск анимации
-            const anim = document.createElement('div');
-            anim.className = 'click-animation';
-            anim.textContent = `+${clickAmount}`;
-            anim.style.left = `${x}px`;
-            anim.style.top = `${y}px`;
-            
-            tapArea.appendChild(anim);
 
-            // Удаление элемента после завершения анимации
-            anim.addEventListener('animationend', () => {
-                anim.remove();
-            });
+    // ТЕКУЩЕЕ СОСТОЯНИЕ (Должно загружаться из bot.py)
+    let userState = {
+        coins: 0,
+        level_click: 0,
+        cards: 0,
+    };
 
-            // ОТПРАВКА ДАННЫХ В БОТА
-            // Эту часть нужно будет доработать для отправки реальных данных
-            // Telegram.WebApp.sendData(JSON.stringify({
-            //     action: 'click',
-            //     coins: currentBalance
-            // }));
-        });
+    // ЛОГИКА УЛУЧШЕНИЙ (Бесконечные улучшения, удорожание с каждым уровнем)
+    const BASE_INCOME = 1;
+    const UPGRADE_COST_BASE = 100;
+    const UPGRADE_COST_MULTIPLIER = 1.3; // Удорожание на 30% за уровень
+    const INCOME_PER_LEVEL = 5;
 
-        // 2. Имитация функции получения Daily Cipher
-        function claimCipher() {
-            const reward = 1000000;
-            currentBalance += reward;
-            balanceDisplay.textContent = currentBalance.toLocaleString('en-US');
-            
-            // В реальном приложении: скрыть кнопку, обновить таймер, отправить данные на сервер.
-            const button = document.querySelector('.cipher-reward-button');
-            button.textContent = 'Claimed!';
-            button.disabled = true;
-            button.style.backgroundColor = '#555';
-            
-            // ОТПРАВКА ДАННЫХ В БОТА
-            // Telegram.WebApp.sendData(JSON.stringify({
-            //     action: 'claim_cipher',
-            //     coins: currentBalance
-            // }));
+    /**
+     * Рассчитывает стоимость следующего уровня.
+     * @param {number} level - Текущий уровень (начинается с 0).
+     */
+    function getUpgradeCost(level) {
+        return Math.floor(UPGRADE_COST_BASE * (UPGRADE_COST_MULTIPLIER ** level));
+    }
+    
+    /**
+     * Рассчитывает доход за клик.
+     * @param {number} level - Текущий уровень (начинается с 0).
+     */
+    function getClickIncome(level) {
+        return BASE_INCOME + (level * INCOME_PER_LEVEL);
+    }
+
+    // --- 2. ФУНКЦИИ ИНИЦИАЛИЗАЦИИ И СИНХРОНИЗАЦИИ ---
+
+    /**
+     * Форматирует число в красивый вид с разделителями.
+     * @param {number} num 
+     */
+    function formatNumber(num) {
+        // Убрал 'ru-RU' для лучшей совместимости, используем дефолтный формат
+        return num.toLocaleString(); 
+    }
+
+    /**
+     * Обновляет все отображаемые элементы на основе userState
+     */
+    function updateDisplay() {
+        const charImage = document.getElementById('characterImage');
+        // Проверка на 1 миллиард
+        const isHighLevel = userState.coins >= MIN_WITHDRAW_AMOUNT; 
+        
+        // 1. Смена персонажа
+        charImage.style.backgroundImage = isHighLevel ? CHAR_IMAGE_HIGH : CHAR_IMAGE_LOW;
+        
+        // 2. Баланс
+        document.getElementById('balanceDisplay').textContent = formatNumber(userState.coins);
+
+        // 3. Меню прокачки
+        renderUpgrades();
+
+        // 4. Счетчик карточек
+        document.getElementById('cards-counter').textContent = `${userState.cards} / ${CARD_COLLECTION_GOAL}`;
+        const claimBtn = document.getElementById('claim-button');
+        // Активация кнопки получения бонуса
+        claimBtn.disabled = userState.cards < CARD_COLLECTION_GOAL; 
+    }
+    
+    /**
+     * Отправляет данные обратно в Telegram Bot
+     */
+    function sendDataToBot(action, data = {}) {
+        if (window.Telegram && window.Telegram.WebApp) {
+            const payload = { 
+                action: action, 
+                ...data,
+                // Всегда отправляем текущее состояние для валидации
+                coins: userState.coins, 
+                level_click: userState.level_click,
+                cards: userState.cards
+            };
+            window.Telegram.WebApp.sendData(JSON.stringify(payload));
+        }
+    }
+
+    /**
+     * Загрузка начальных данных от бота (имитация)
+     */
+    function loadInitialData() {
+        if (window.Telegram && window.Telegram.WebApp) {
+             window.Telegram.WebApp.ready();
+             // В реальной жизни тут должна быть обработка window.Telegram.WebApp.initDataUnsafe
+             // и запрос к API для получения userState.
         }
 
-    </script>
+        // Имитация получения данных:
+        userState.coins = 0; 
+        userState.level_click = 0;
+        userState.cards = 0;
+
+        // Назначаем ссылку на канал
+        document.getElementById('telegramChannelLink').href = TELEGRAM_CHANNEL_URL;
+        updateDisplay();
+    }
+
+    // --- 3. ЛОГИКА КЛИКЕРА И АНИМАЦИИ ---
+
+    function handleMainClick(event) {
+        const income = getClickIncome(userState.level_click);
+        userState.coins += income;
+
+        // 1. Анимация плюс-очков
+        const plusPoints = document.createElement('div');
+        plusPoints.className = 'plus-points';
+        plusPoints.textContent = `+${income}`;
+        
+        const rect = document.getElementById('clickerArea').getBoundingClientRect();
+        const offsetX = event.clientX - rect.left;
+        const offsetY = event.clientY - rect.top;
+
+        plusPoints.style.left = `${offsetX}px`;
+        plusPoints.style.top = `${offsetY}px`;
+
+        document.getElementById('clickerArea').appendChild(plusPoints);
+
+        plusPoints.addEventListener('animationend', () => {
+            plusPoints.remove();
+        });
+
+        // 2. Проверка на выпадение карточки
+        checkCardDrop();
+        
+        // 3. Обновление и синхронизация
+        updateDisplay();
+        sendDataToBot('click', { new_coins: userState.coins });
+    }
+
+    function checkCardDrop() {
+        if (Math.random() < CARD_DROP_CHANCE) {
+            userState.cards += 1;
+            
+            // Показываем модальное окно с карточкой
+            document.getElementById('cardCountModal').textContent = userState.cards;
+            document.getElementById('cardModal').style.display = 'flex';
+        }
+    }
+
+
+    // --- 4. ЛОГИКА УЛУЧШЕНИЙ ---
+
+    function renderUpgrades() {
+        const container = document.getElementById('contentUpgrades');
+        container.innerHTML = ''; // Очистка
+        
+        const currentLevel = userState.level_click;
+        const nextCost = getUpgradeCost(currentLevel);
+        const nextIncome = getClickIncome(currentLevel + 1);
+        const canBuy = userState.coins >= nextCost;
+
+        // Создаем единственное (бесконечное) улучшение
+        const item = document.createElement('div');
+        item.className = 'upgrade-item';
+        item.innerHTML = `
+            <div>
+                <strong>Уровень клика ${currentLevel + 1}</strong>
+                <p style="font-size: 0.9em; margin: 5px 0 0;">Доход: +${nextIncome} XDZ за клик</p>
+                <p style="font-size: 0.8em; color: #aaa;">Текущий доход: +${getClickIncome(currentLevel)} XDZ</p>
+            </div>
+            <button id="buyUpgradeBtn" ${canBuy ? '' : 'disabled'}>
+                Купить (${formatNumber(nextCost)} XDZ)
+            </button>
+        `;
+        
+        container.appendChild(item);
+        
+        document.getElementById('buyUpgradeBtn').onclick = () => buyUpgrade(nextCost);
+    }
+
+    function buyUpgrade(cost) {
+        if (userState.coins >= cost) {
+            userState.coins -= cost;
+            userState.level_click += 1;
+            
+            updateDisplay();
+            // Отправляем данные в бота для валидации и сохранения
+            sendDataToBot('buy_upgrade', { 
+                type: 'click_level', 
+                cost: cost 
+            });
+        } else {
+            if(window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.showAlert('Недостаточно монет для покупки!');
+            }
+        }
+    }
+
+
+    // --- 5. ЛОГИКА ВЫВОДА ---
+
+    function openWithdrawModal() {
+        document.getElementById('withdrawModal').style.display = 'flex';
+        document.getElementById('minWithdrawDisplay').textContent = formatNumber(MIN_WITHDRAW_AMOUNT) + " XDZ";
+        document.getElementById('currentBalanceWithdraw').textContent = formatNumber(userState.coins) + " XDZ";
+        
+        const sendBtn = document.getElementById('sendWithdrawRequest');
+        sendBtn.onclick = sendWithdraw;
+        sendBtn.disabled = userState.coins < MIN_WITHDRAW_AMOUNT;
+    }
+    
+    function sendWithdraw() {
+        const input = document.getElementById('withdrawIdInput');
+        const userId = input.value.trim();
+
+        if (userState.coins < MIN_WITHDRAW_AMOUNT) {
+            window.Telegram.WebApp.showAlert(`Минимальная сумма для вывода: ${formatNumber(MIN_WITHDRAW_AMOUNT)} XDZ`);
+            return;
+        }
+
+        // Валидация ID: 7 символов, начинается с 1
+        if (!/^[1]\d{6}$/.test(userId)) {
+            window.Telegram.WebApp.showAlert('❌ Неверный формат ID. Должен состоять из 7 цифр и начинаться с 1 (пример: 1234567).');
+            return;
+        }
+
+        // Отправляем запрос
+        sendDataToBot('withdraw_request', { 
+            amount: userState.coins, 
+            app_id: userId // Передаем ID приложения
+        });
+        
+        document.getElementById('withdrawModal').style.display = 'none';
+        window.Telegram.WebApp.showAlert('✅ Запрос на вывод отправлен! Ожидайте обработки.');
+    }
+
+    // --- 6. ЛОГИКА КАРТОЧЕК ---
+
+    function claimCardBonus() {
+        if (userState.cards >= CARD_COLLECTION_GOAL) {
+            const bonus = CARD_COLLECTION_GOAL * 20000000; // 2 млрд коинов
+            
+            userState.coins += bonus;
+            userState.cards -= CARD_COLLECTION_GOAL; // Сброс счетчика
+            
+            updateDisplay();
+            
+            // Отправляем данные в бота для сохранения
+            sendDataToBot('claim_card_bonus', {
+                bonus_amount: bonus
+            });
+            
+            window.Telegram.WebApp.showAlert(`🎁 Получен бонус: ${formatNumber(bonus)} XDZ!`);
+        }
+    }
+
+    // --- 7. ПЕРЕКЛЮЧЕНИЕ СЕКЦИЙ ---
+
+    function switchSection(sectionId) {
+        const sections = {
+            'menuClicker': 'clickerArea',
+            'menuUpgrades': 'contentUpgrades',
+            'menuCards': 'contentCards'
+        };
+
+        // Скрываем все секции и убираем активный класс
+        Object.keys(sections).forEach(menuId => {
+            const contentId = sections[menuId];
+            const contentElement = document.getElementById(contentId);
+            if (contentElement) {
+                contentElement.style.display = 'none';
+            }
+            const menuElement = document.getElementById(menuId);
+            if (menuElement) {
+                menuElement.classList.remove('active');
+            }
+        });
+
+        // Показываем нужную секцию и добавляем активный класс
+        const menuId = Object.keys(sections).find(key => sections[key] === sectionId);
+        if (menuId) {
+            const displayStyle = sectionId === 'clickerArea' ? 'flex' : 'flex';
+            document.getElementById(sectionId).style.display = displayStyle;
+            document.getElementById(menuId).classList.add('active');
+        }
+
+        updateDisplay();
+    }
+
+
+    // --- 8. ОБРАБОТЧИКИ СОБЫТИЙ ---
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadInitialData();
+        
+        // ONBOARDING
+        const onboarding = document.getElementById('onboarding');
+        const mainApp = document.getElementById('mainApp');
+        
+        onboarding.style.display = 'flex'; // Показываем стартовый экран
+
+        document.getElementById('startGameButton').onclick = () => {
+            onboarding.style.display = 'none';
+            mainApp.style.display = 'flex';
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.ready();
+                window.Telegram.WebApp.expand();
+            }
+        };
+
+        // МЕНЮ
+        document.getElementById('menuClicker').onclick = () => switchSection('clickerArea');
+        document.getElementById('menuUpgrades').onclick = () => switchSection('contentUpgrades');
+        document.getElementById('menuCards').onclick = () => switchSection('contentCards');
+        
+        // КЛИКЕР
+        document.getElementById('clickerArea').onclick = handleMainClick;
+
+        // ВЫВОД
+        document.getElementById('withdrawBtn').onclick = openWithdrawModal;
+        document.getElementById('claim-button').onclick = claimCardBonus;
+
+        // Инициализируем раздел кликера по умолчанию
+        switchSection('clickerArea'); 
+    });
+</script>
 </body>
 </html>
