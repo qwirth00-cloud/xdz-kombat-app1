@@ -3,455 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>XDZ Kombat</title>
+    <title>XDZ Combat (Mini App)</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-dark: #1C1C1E;
-            --primary-orange: #FF9500;
-            --accent-green: #34C759;
-            --text-light: #EBEBF5;
-            --card-bg: #2C2C2E;
+            --dark-bg: #1A1A1A;
+            --main-text: #FFFFFF;
+            --secondary-text: #A0A0A0;
+            --accent-gold: #FFD700;
+            --accent-red: #FF0040;
+            --header-bg: #111111;
+            --tap-area-circle: rgba(255, 0, 64, 0.2); /* Красное свечение вокруг хомяка */
         }
+
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
-        }
-        .container {
-            padding: 0 15px;
-        }
-
-        /* --- Header & Balance --- */
-        .header {
-            padding: 20px 0;
-            text-align: center;
-        }
-        #balance-display {
-            font-size: 3.5em;
-            font-weight: 700;
-            color: var(--text-light);
-            margin-bottom: 5px;
+            background-color: var(--dark-bg);
+            color: var(--main-text);
+            overflow: hidden; /* Важно для мобильных приложений */
             display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #balance-display span { margin-left: 10px; }
-        .income-info {
-            color: #8E8E93;
-            font-size: 1.1em;
+            flex-direction: column;
+            height: 100vh;
         }
 
-        /* --- Click Area --- */
-        #click-area {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle at center, #ffad33 0%, var(--primary-orange) 100%);
-            border-radius: 50%;
-            margin: 40px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 80px;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(255, 149, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.5);
-            transition: transform 0.1s ease;
-            user-select: none;
-        }
-        #click-area:active {
-            transform: scale(0.95);
-        }
-
-        /* --- Navigation --- */
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+        /* -----------------------------------
+           HEADER (Верхние награды)
+           ----------------------------------- */
+        .header-rewards {
             display: flex;
             justify-content: space-around;
-            background-color: var(--card-bg);
-            border-top: 1px solid #3A3A3C;
-            padding: 10px 0;
-            z-index: 1000;
+            padding: 10px 10px 20px;
+            background-color: var(--dark-bg);
         }
-        .nav-item {
+
+        .reward-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--header-bg);
+            border-radius: 10px;
+            padding: 10px;
+            width: 30%;
             text-align: center;
-            cursor: pointer;
-            color: #8E8E93;
-            font-size: 0.8em;
-            padding: 5px;
-        }
-        .nav-item.active {
-            color: var(--primary-orange);
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.6;
+            transition: opacity 0.2s;
         }
 
-        /* --- Section Styling (Cards) --- */
-        .section {
-            padding-bottom: 100px; /* Учитываем высоту навигации */
-            display: none;
-        }
-        .section.active {
-            display: block;
+        .reward-item.active {
+            opacity: 1;
+            border-color: var(--accent-gold);
         }
 
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
+        .reward-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #333;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            /* Заглушки для иконок */
+            background-size: cover;
+        }
+        .reward-item:nth-child(1) .reward-icon { background-image: url('https://placehold.co/40x40/4CAF50/white?text=D'); }
+        .reward-item:nth-child(2) .reward-icon { background-image: url('https://placehold.co/40x40/FF5722/white?text=C'); }
+        .reward-item:nth-child(3) .reward-icon { background-image: url('https://placehold.co/40x40/2196F3/white?text=K'); }
+
+
+        .reward-item .title {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--secondary-text);
+        }
+
+        .reward-item .timer {
+            font-size: 10px;
+            color: var(--secondary-text);
+        }
+        
+        .reward-item.active .reward-icon::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            line-height: 15px;
+            font-size: 10px;
+        }
+        
+        /* -----------------------------------
+           MAIN CONTENT
+           ----------------------------------- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .balance-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .balance-value {
+            font-size: 32px;
+            font-weight: 900;
+            margin-top: 10px;
+            letter-spacing: -1px;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+        }
+
+        .balance-label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--secondary-text);
             margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            text-align: left;
         }
-        .card-header {
-            font-size: 1.1em;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: var(--primary-orange);
+        
+        .balance-label .coin-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            /* Заглушка для монеты */
+            background-image: url('https://placehold.co/20x20/FFD700/000000?text=$');
+            background-size: cover;
+            border-radius: 50%;
         }
-        .upgrade-item {
+
+        /* Daily Cipher block */
+        .daily-cipher-block {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #3A3A3C;
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 25px;
         }
-        .upgrade-item:last-child {
-            border-bottom: none;
+
+        .cipher-label {
+            font-size: 14px;
+            font-weight: bold;
         }
-        .upgrade-details strong {
-            display: block;
-            font-size: 1.1em;
-        }
-        .upgrade-details span {
-            font-size: 0.9em;
-            color: #8E8E93;
-        }
-        .buy-btn {
-            background-color: var(--accent-green);
+
+        .cipher-reward-button {
+            background-color: #32CD32; /* Lime green */
             color: white;
             border: none;
             padding: 8px 15px;
             border-radius: 8px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .buy-btn:disabled {
-            background-color: #5A5A5C;
-        }
-        .buy-btn:not(:disabled):active {
-            background-color: #27ae60;
         }
 
-        /* --- Promo Section --- */
-        .promo-input-group {
+        /* -----------------------------------
+           HAMSTER TAP AREA
+           ----------------------------------- */
+        .tap-area {
+            position: relative;
+            width: 300px;
+            height: 300px;
             display: flex;
-            margin-top: 15px;
-        }
-        #promo-input {
-            flex-grow: 1;
-            padding: 10px;
-            border-radius: 8px 0 0 8px;
-            border: 1px solid #5A5A5C;
-            background-color: #1C1C1E;
-            color: var(--text-light);
-        }
-        #promo-button {
-            background-color: var(--primary-orange);
-            color: var(--bg-dark);
-            border: none;
-            padding: 10px 15px;
-            border-radius: 0 8px 8px 0;
-            font-weight: 600;
+            justify-content: center;
+            align-items: center;
+            /* Имитация красного круга */
+            background: radial-gradient(circle, var(--tap-area-circle) 0%, rgba(255, 0, 64, 0) 70%);
+            border-radius: 50%;
+            box-shadow: 0 0 40px var(--accent-red);
             cursor: pointer;
         }
+
+        .hamster-circle {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background-color: #333333;
+            overflow: hidden;
+            border: 5px solid var(--dark-bg); /* Имитация рамки */
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .hamster-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Заглушка для хомяка */
+            background-image: url('https://placehold.co/250x250/5D5D5D/white?text=HAMSTER');
+            background-size: cover;
+            border-radius: 50%;
+        }
+        
+        /* -----------------------------------
+           BOTTOM NAVIGATION (Нижнее меню)
+           ----------------------------------- */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 60px;
+            background-color: var(--header-bg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: env(safe-area-inset-bottom); /* Учет безопасной области на iOS */
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            color: var(--secondary-text);
+            padding: 5px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--main-text);
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 2px;
+            /* Заглушки для иконок */
+            background-color: #555;
+            border-radius: 50%;
+            background-size: 60%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .nav-item.active .nav-icon {
+            background-color: var(--accent-gold);
+        }
+
+        /* Имитация иконок */
+        .nav-item:nth-child(1) .nav-icon { background-image: url('https://placehold.co/24x24/555/white?text=E'); }
+        .nav-item:nth-child(2) .nav-icon { background-image: url('https://placehold.co/24x24/555/white?text=M'); }
+        .nav-item:nth-child(3) .nav-icon { background-image: url('https://placehold.co/24x24/555/white?text=F'); }
+        .nav-item:nth-child(4) .nav-icon { background-image: url('https://placehold.co/24x24/555/white?text=R'); }
+        .nav-item:nth-child(5) .nav-icon { background-image: url('https://placehold.co/24x24/555/white?text=A'); }
+        
+        .nav-item.active:nth-child(1) .nav-icon { background-color: var(--accent-gold); }
+
+        /* Эффект для клика (анимация) */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .click-animation {
+            position: absolute;
+            font-size: 30px;
+            font-weight: bold;
+            color: var(--accent-gold);
+            pointer-events: none;
+            animation: pulse 0.5s ease-out forwards;
+        }
+
+        /* -----------------------------------
+           JS INIT & TAP
+           ----------------------------------- */
+        .init-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 20px;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
-
-        <div id="section-home" class="section active">
-            <div class="header">
-                <div id="balance-display">
-                    💎 <span id="current-coins">0</span>
-                </div>
-                <div class="income-info">
-                    +<span id="income-per-click">1</span> в клик
-                </div>
-            </div>
-
-            <div id="click-area">
-                ⚡
-            </div>
-            
-            <div class="card">
-                <div class="card-header">👤 Статус</div>
-                <div id="profile-details">
-                    <div class="upgrade-item">
-                        <span>Уровень клика:</span>
-                        <strong id="click-level">0</strong>
-                    </div>
-                    <div class="upgrade-item">
-                        <span>VIP Статус:</span>
-                        <strong id="vip-status">❌ Нет</strong>
-                    </div>
-                    <div class="upgrade-item">
-                        <span>Общий буст:</span>
-                        <strong id="total-boost">0%</strong>
-                    </div>
-                </div>
-            </div>
+    <div class="header-rewards">
+        <div class="reward-item">
+            <div class="reward-icon"></div>
+            <span class="title">Daily reward</span>
+            <span class="timer" id="daily-reward-timer">03:53</span>
         </div>
-
-        <div id="section-upgrade" class="section">
-            <h2 style="text-align: center;">✨ Прокачки</h2>
-            <div class="card">
-                <div class="card-header">⛏️ Улучшение дохода за клик</div>
-                <div id="upgrade-list">
-                    <div class="upgrade-item">
-                        <div class="upgrade-details">
-                            <strong>Уровень 1</strong>
-                            <span>+2 XDZ | 15 🪙</span>
-                        </div>
-                        <button class="buy-btn" data-type="click_level" data-level="1" data-cost="15">Купить</button>
-                    </div>
-                    <div class="upgrade-item">
-                        <div class="upgrade-details">
-                            <strong>VIP</strong>
-                            <span>+50% Буст | 500 🪙</span>
-                        </div>
-                        <button class="buy-btn" data-type="vip_status" data-cost="500">Купить</button>
-                    </div>
-                </div>
-            </div>
+        <div class="reward-item active">
+            <div class="reward-icon"></div>
+            <span class="title">Daily cipher</span>
+            <span class="timer" id="daily-cipher-timer">22:53</span>
         </div>
+        <div class="reward-item">
+            <div class="reward-icon"></div>
+            <span class="title">Daily combo</span>
+            <span class="timer" id="daily-combo-timer">15:53</span>
+        </div>
+    </div>
 
-        <div id="section-promo" class="section">
-            <h2 style="text-align: center;">🎁 Промокоды</h2>
-            <div class="card">
-                <div class="card-header">Активация</div>
-                <div class="promo-input-group">
-                    <input type="text" id="promo-input" placeholder="Введите промокод..." maxlength="20">
-                    <button id="promo-button">Ввести</button>
-                </div>
-                <p style="font-size: 0.9em; color: #8E8E93; margin-top: 15px;">
-                    Вводите код и получайте бесплатные монеты!
-                </p>
-                <div id="promo-message" style="margin-top: 10px; color: var(--accent-green); font-weight: 600;"></div>
+    <div class="main-content">
+        <div class="balance-section">
+            <div class="balance-label">
+                <div class="coin-icon"></div>
+                <div class="cipher-label">Daily cipher</div> 
             </div>
+            <div class="balance-value" id="balance-display">592,325,819</div>
         </div>
         
-    </div>
+        <div class="daily-cipher-block">
+            <span class="cipher-label">Daily cipher</span>
+            <button class="cipher-reward-button" onclick="claimCipher()">+1,000,000</button>
+        </div>
 
-    <div class="nav-bar">
-        <div class="nav-item active" data-target="home">
-            🏠 Главная
-        </div>
-        <div class="nav-item" data-target="upgrade">
-            ✨ Прокачки
-        </div>
-        <div class="nav-item" data-target="promo">
-            🎁 Промо
-        </div>
-        <div class="nav-item" data-target="withdraw">
-            💰 Вывод
+        <div class="tap-area" id="tap-area">
+            <div class="hamster-circle">
+                <div class="hamster-image"></div>
+            </div>
         </div>
     </div>
 
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <div class="nav-icon"></div>
+            <span>Exchange</span>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"></div>
+            <span>Mine</span>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"></div>
+            <span>Friends</span>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"></div>
+            <span>Earn</span>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"></div>
+            <span>Airdrop</span>
+        </div>
+    </div>
 
     <script>
-        // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (Синхронизируются с ботом) ---
-        let userState = {
-            coins: 0,
-            income: 1,
-            level_click: 0,
-            is_vip: false
-        };
-        const UPGRADE_COSTS = [
-            { level: 1, bonus: 2, cost: 15 },
-            { level: 2, bonus: 5, cost: 30 },
-            { level: 3, bonus: 15, cost: 50 },
-            { level: 4, bonus: 30, cost: 100 }
-        ];
+        const tapArea = document.getElementById('tap-area');
+        const balanceDisplay = document.getElementById('balance-display');
+        let currentBalance = 592325819; // Начальный баланс
 
-        // --- ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP ---
-        if (window.Telegram.WebApp) {
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand(); // Разворачиваем на весь экран
-            // Убираем MainButton, т.к. используем нижнюю навигацию
-            Telegram.WebApp.MainButton.hide(); 
-        }
+        // Инициализация Web App
+        Telegram.WebApp.ready();
+        Telegram.WebApp.setBackgroundColor('#1A1A1A');
 
-        // --- ЛОГИКА СИНХРОНИЗАЦИИ И ОТПРАВКИ ДАННЫХ ---
+        // 1. Обработка клика (для примера)
+        tapArea.addEventListener('click', (e) => {
+            // Координаты для анимации
+            const rect = tapArea.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
 
-        function sendDataToBot(data) {
-            if (window.Telegram.WebApp) {
-                const dataString = JSON.stringify(data);
-                Telegram.WebApp.sendData(dataString);
-            }
-            // В реальном приложении здесь должен быть лог
-            console.log("Отправка боту:", data); 
-        }
+            // Добавляем монеты (увеличиваем баланс для примера)
+            const clickAmount = 1;
+            currentBalance += clickAmount;
+            balanceDisplay.textContent = currentBalance.toLocaleString('en-US');
 
-        // Функция обновления UI на основе userState
-        function updateUI() {
-            document.getElementById('current-coins').textContent = userState.coins.toLocaleString();
-            document.getElementById('income-per-click').textContent = userState.income.toLocaleString();
-            document.getElementById('click-level').textContent = userState.level_click;
-            document.getElementById('vip-status').textContent = userState.is_vip ? '✅ Активен' : '❌ Нет';
+            // Создание и запуск анимации
+            const anim = document.createElement('div');
+            anim.className = 'click-animation';
+            anim.textContent = `+${clickAmount}`;
+            anim.style.left = `${x}px`;
+            anim.style.top = `${y}px`;
             
-            // Расчет буста (упрощенно)
-            const boost = userState.is_vip ? 50 : 0;
-            document.getElementById('total-boost').textContent = `${boost}%`;
+            tapArea.appendChild(anim);
 
-            // Обновление кнопок прокачек
-            renderUpgrades();
-        }
+            // Удаление элемента после завершения анимации
+            anim.addEventListener('animationend', () => {
+                anim.remove();
+            });
 
-        // Симуляция получения данных от бота (В РЕАЛЬНОСТИ ЭТО ПРИХОДИТ ИЗ PYTHON)
-        // Для демонстрации, будем вызывать это при загрузке.
-        function simulateSyncData(data) {
-             // Здесь бот должен отправить JSON с актуальными данными
-             // userState = data;
-             // updateUI();
-        }
+            // ОТПРАВКА ДАННЫХ В БОТА
+            // Эту часть нужно будет доработать для отправки реальных данных
+            // Telegram.WebApp.sendData(JSON.stringify({
+            //     action: 'click',
+            //     coins: currentBalance
+            // }));
+        });
 
-
-        // --- ОБРАБОТЧИКИ СОБЫТИЙ ---
-
-        // 1. Клик по кнопке
-        document.getElementById('click-area').addEventListener('click', () => {
-            userState.coins += userState.income; // Локальное начисление
-            updateUI();
+        // 2. Имитация функции получения Daily Cipher
+        function claimCipher() {
+            const reward = 1000000;
+            currentBalance += reward;
+            balanceDisplay.textContent = currentBalance.toLocaleString('en-US');
             
-            // Отправка запроса на сохранение
-            sendDataToBot({ 
-                action: 'click', 
-                coins: userState.coins // Отправляем текущий баланс для сохранения
-            });
-        });
-
-        // 2. Навигация
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                
-                const target = this.getAttribute('data-target');
-                document.getElementById(`section-${target}`).classList.add('active');
-                this.classList.add('active');
-
-                // Специальные действия для некоторых кнопок
-                if (target === 'withdraw') {
-                    // Отправляем запрос на вывод. Бот должен ответить в чате.
-                    sendDataToBot({ action: 'withdraw_request' });
-                    // Возвращаем на главную, чтобы не зависать
-                    document.getElementById(`section-home`).classList.add('active');
-                    document.querySelector('.nav-item[data-target="home"]').classList.add('active');
-                    Telegram.WebApp.showAlert('Запрос на вывод отправлен боту. Проверьте чат!');
-                }
-            });
-        });
-
-        // 3. Логика покупки прокачек (Симуляция)
-        document.getElementById('upgrade-list').addEventListener('click', function(e) {
-            if (e.target.classList.contains('buy-btn') && !e.target.disabled) {
-                const cost = parseInt(e.target.getAttribute('data-cost'));
-                const type = e.target.getAttribute('data-type');
-                
-                if (userState.coins >= cost) {
-                    userState.coins -= cost;
-                    
-                    if (type === 'click_level') {
-                        // Логика прокачки уровня
-                        userState.level_click += 1;
-                        userState.income += UPGRADE_COSTS[userState.level_click - 1].bonus;
-                    } else if (type === 'vip_status') {
-                        // Логика VIP
-                        userState.is_vip = true;
-                    }
-
-                    // Отправка запроса на покупку
-                    sendDataToBot({ 
-                        action: 'buy_upgrade', 
-                        type: type, 
-                        cost: cost 
-                    });
-
-                    updateUI();
-                    Telegram.WebApp.showPopup({ message: 'Успешно куплено!' });
-                } else {
-                    Telegram.WebApp.showAlert('Недостаточно монет!');
-                }
-            }
-        });
-        
-        // 4. Логика промокодов
-        document.getElementById('promo-button').addEventListener('click', () => {
-            const code = document.getElementById('promo-input').value.trim().toUpperCase();
-            if (code) {
-                // Отправляем код боту. Бот должен обработать его FSM.
-                sendDataToBot({ action: 'activate_promo', code: code });
-                document.getElementById('promo-input').value = '';
-                document.getElementById('promo-message').textContent = 'Отправлено боту. Ждите ответа...';
-            }
-        });
-
-        // 5. Рендеринг кнопок прокачек (динамическое обновление)
-        function renderUpgrades() {
-            const list = document.getElementById('upgrade-list');
-            list.innerHTML = ''; // Очистка
-
-            // --- Кнопки уровня клика ---
-            const nextLevelIndex = userState.level_click;
-            if (nextLevelIndex < UPGRADE_COSTS.length) {
-                const upg = UPGRADE_COSTS[nextLevelIndex];
-                const btnText = userState.coins >= upg.cost ? 'Купить' : `${upg.cost} 🪙`;
-                const isDisabled = userState.coins < upg.cost;
-
-                const itemHtml = `
-                    <div class="upgrade-item">
-                        <div class="upgrade-details">
-                            <strong>⛏️ Ур. ${upg.level + 1}</strong>
-                            <span>+${upg.bonus} XDZ | ${upg.cost} 🪙</span>
-                        </div>
-                        <button class="buy-btn" data-type="click_level" data-cost="${upg.cost}" ${isDisabled ? 'disabled' : ''}>${btnText}</button>
-                    </div>
-                `;
-                list.innerHTML += itemHtml;
-            } else {
-                 list.innerHTML += `<div class="upgrade-item"><strong>⛏️ Уровень клика:</strong> <span>MAX</span></div>`;
-            }
-
-            // --- Кнопка VIP ---
-            if (!userState.is_vip) {
-                const cost = 500;
-                const btnText = userState.coins >= cost ? 'Купить' : `${cost} 🪙`;
-                const isDisabled = userState.coins < cost;
-                const vipHtml = `
-                    <div class="upgrade-item">
-                        <div class="upgrade-details">
-                            <strong>👑 VIP Статус</strong>
-                            <span>+50% Буст | ${cost} 🪙</span>
-                        </div>
-                        <button class="buy-btn" data-type="vip_status" data-cost="${cost}" ${isDisabled ? 'disabled' : ''}>${btnText}</button>
-                    </div>
-                `;
-                list.innerHTML += vipHtml;
-            } else {
-                list.innerHTML += `<div class="upgrade-item"><strong>👑 VIP Статус:</strong> <span>Активен</span></div>`;
-            }
+            // В реальном приложении: скрыть кнопку, обновить таймер, отправить данные на сервер.
+            const button = document.querySelector('.cipher-reward-button');
+            button.textContent = 'Claimed!';
+            button.disabled = true;
+            button.style.backgroundColor = '#555';
+            
+            // ОТПРАВКА ДАННЫХ В БОТА
+            // Telegram.WebApp.sendData(JSON.stringify({
+            //     action: 'claim_cipher',
+            //     coins: currentBalance
+            // }));
         }
 
-
-        // --- ИНИЦИАЛИЗАЦИЯ ---
-        updateUI(); // Первичная отрисовка
-        // В реальном приложении: запросить актуальный баланс у бота после window.Telegram.WebApp.ready();
     </script>
 </body>
 </html>
